@@ -1,0 +1,29 @@
+.topbar {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background: #1a1a2e;
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.topbar-logo {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #fff;
+}
+
+.topbar-accent { color: #2ecc71; }
+
+.topbar-profile {
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: #fff;
+  padding: 0;
+}
