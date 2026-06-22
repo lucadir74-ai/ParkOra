@@ -1,0 +1,122 @@
+.mappa-container {
+  position: relative;
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.user-marker {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #1a1a2e;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px #1a1a2e;
+}
+
+.map-pin {
+  width: 32px;
+  height: 32px;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+
+.map-pin:hover {
+  transform: rotate(-45deg) scale(1.15);
+}
+
+.map-pin span, .map-pin {
+  font-size: 14px;
+}
+
+.pin-zona {
+  border-radius: 8px;
+  transform: none;
+}
+
+.pin-zona:hover {
+  transform: scale(1.1);
+}
+
+.mappa-legend {
+  position: absolute;
+  bottom: 130px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255,255,255,0.95);
+  border-radius: 20px;
+  padding: 6px 14px;
+  display: flex;
+  gap: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+  z-index: 10;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 11px;
+  color: #555;
+  white-space: nowrap;
+}
+
+.legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.mappa-actions {
+  position: absolute;
+  bottom: 24px;
+  left: 0;
+  right: 0;
+  padding: 0 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  z-index: 10;
+}
+
+.btn-signal {
+  width: 100%;
+  padding: 1rem;
+  background: #2ecc71;
+  color: #fff;
+  border: none;
+  border-radius: 14px;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(46,204,113,0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.btn-signal:active {
+  transform: scale(0.97);
+  box-shadow: 0 2px 6px rgba(46,204,113,0.3);
+}
+
+.btn-zone {
+  width: 100%;
+  padding: 0.85rem;
+  background: #fff;
+  color: #1a1a2e;
+  border: 1.5px solid #f39c12;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.btn-zone:active { background: #fef9e7; }
