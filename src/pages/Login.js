@@ -16,7 +16,10 @@ export default function Login() {
     setError('')
     const fn = isSignUp ? signUpWithEmail : signInWithEmail
     const { error } = await fn(email, password)
-    if (error) setError(error.message)
+    if (error) {
+      console.error('Auth error:', error)
+      setError(typeof error.message === 'string' ? error.message : JSON.stringify(error))
+    }
     setLoading(false)
   }
 
