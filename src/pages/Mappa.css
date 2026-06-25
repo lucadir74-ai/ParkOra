@@ -11,9 +11,10 @@
   z-index: 1;
 }
 
+/* Legenda */
 .mappa-legend {
   position: fixed;
-  bottom: 130px;
+  bottom: 100px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(255,255,255,0.95);
@@ -23,6 +24,7 @@
   gap: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.12);
   z-index: 1000;
+  pointer-events: none;
 }
 
 .legend-item {
@@ -41,57 +43,87 @@
   flex-shrink: 0;
 }
 
-.mappa-actions {
+/* FAB overlay */
+.fab-overlay {
   position: fixed;
-  bottom: 24px;
-  left: 0;
-  right: 0;
-  padding: 0 1rem;
+  inset: 0;
+  z-index: 1500;
+  background: rgba(0,0,0,0.15);
+}
+
+/* FAB container */
+.fab-container {
+  position: fixed;
+  bottom: 28px;
+  right: 20px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  z-index: 1000;
+  align-items: flex-end;
+  gap: 12px;
+  z-index: 2000;
 }
 
-.btn-signal {
-  width: 100%;
-  padding: 1rem;
-  background: #2ecc71;
-  color: #fff;
+/* FAB opzioni */
+.fab-options {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  align-items: flex-end;
+}
+
+.fab-option {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 16px 10px 12px;
   border: none;
-  border-radius: 14px;
-  font-size: 1rem;
-  font-weight: 700;
-  cursor: pointer;
-  box-shadow: 0 4px 12px rgba(46,204,113,0.4);
-  transition: transform 0.15s, box-shadow 0.15s;
-}
-
-.btn-signal:active {
-  transform: scale(0.97);
-  box-shadow: 0 2px 6px rgba(46,204,113,0.3);
-}
-
-.btn-zone {
-  width: 100%;
-  padding: 0.85rem;
-  background: #fff;
-  color: #1a1a2e;
-  border: 1.5px solid #f39c12;
-  border-radius: 14px;
+  border-radius: 24px;
   font-size: 0.95rem;
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.15s;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+  transition: transform 0.15s;
+  white-space: nowrap;
 }
 
-.btn-zone:active { background: #fef9e7; }
+.fab-option:active { transform: scale(0.96); }
 
-.user-marker {
-  width: 16px;
-  height: 16px;
+.fab-option-singolo {
+  background: #2ecc71;
+  color: #fff;
+}
+
+.fab-option-zona {
+  background: #fff;
+  color: #1a1a2e;
+  border: 1.5px solid #f39c12;
+}
+
+.fab-option-icon { font-size: 1.1rem; }
+.fab-option-label { font-size: 0.9rem; }
+
+/* FAB principale */
+.fab-main {
+  width: 58px;
+  height: 58px;
   border-radius: 50%;
-  background: #1a1a2e;
-  border: 3px solid #fff;
-  box-shadow: 0 0 0 2px #1a1a2e;
+  background: #2ecc71;
+  color: #fff;
+  border: none;
+  font-size: 1.8rem;
+  font-weight: 300;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(46,204,113,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.2s, background 0.2s;
+  line-height: 1;
 }
+
+.fab-main.fab-open {
+  background: #e74c3c;
+  transform: rotate(0deg);
+}
+
+.fab-main:active { transform: scale(0.93); }

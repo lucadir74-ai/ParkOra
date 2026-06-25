@@ -9,7 +9,6 @@ import TopBar from '../components/TopBar'
 import 'leaflet/dist/leaflet.css'
 import './Mappa.css'
 
-// Fix icone Leaflet
 delete L.Icon.Default.prototype._getIconUrl
 L.Icon.Default.mergeOptions({
   iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -23,15 +22,15 @@ function createPinIcon(color, tipo) {
     className: '',
     html: `<div style="
       background:${color};
-      width:32px;height:32px;
+      width:36px;height:36px;
       border-radius:${tipo === 'zona' ? '8px' : '50% 50% 50% 0'};
       transform:${tipo === 'zona' ? 'none' : 'rotate(-45deg)'};
       display:flex;align-items:center;justify-content:center;
-      box-shadow:0 2px 6px rgba(0,0,0,0.25);
-      font-size:14px;
+      box-shadow:0 2px 8px rgba(0,0,0,0.3);
+      font-size:16px;
     "><span style="transform:${tipo === 'zona' ? 'none' : 'rotate(45deg)'};">${emoji}</span></div>`,
-    iconSize: [32, 32],
-    iconAnchor: [16, 32],
+    iconSize: [36, 36],
+    iconAnchor: [18, 36],
   })
 }
 
@@ -79,6 +78,7 @@ export default function Mappa() {
   const [showModal, setShowModal] = useState(false)
   const [modalType, setModalType] = useState('singolo')
   const [userPosition, setUserPosition] = useState(null)
+  const [fabOpen, setFabOpen] = useState(false)
   const intervalRef = useRef(null)
 
   const fetchSegnalazioni = useCallback(async () => {
@@ -124,6 +124,7 @@ export default function Mappa() {
       return
     }
     setShowModal(false)
+    setFabOpen(false)
 
     const { error } = await supabase.from('segnalazioni').insert({
       user_id: user.id,
@@ -196,18 +197,37 @@ export default function Mappa() {
         ))}
       </MapContainer>
 
+      {/* Legenda */}
       <div className="mappa-legend">
         <span className="legend-item"><span className="legend-dot" style={{ background: '#2ecc71' }} />libero ora</span>
         <span className="legend-item"><span className="legend-dot" style={{ background: '#f39c12' }} />4+ min</span>
         <span className="legend-item"><span className="legend-dot" style={{ background: '#e74c3c' }} />scadendo</span>
       </div>
 
-      <div className="mappa-actions">
-        <button className="btn-signal" onClick={() => { setModalType('singolo'); setShowModal(true) }}>
-          🚗 Sto uscendo
-        </button>
-        <button className="btn-zone" onClick={() => { setModalType('zona'); setShowModal(true) }}>
-          📍 Segnala zona libera
+      {/* FAB menu */}
+      {fabOpen && (
+        <div className="fab-overlay" onClick={() => setFabOpen(false)} />
+      )}
+
+      <div className="fab-container">
+        {fabOpen && (
+          <div className="fab-options">
+            <button className="fab-option fab-option-zona" onClick={() => { setModalType('zona'); setShowModal(true) }}>
+              <span className="fab-option-icon">📍</span>
+              <span className="fab-option-label">Zona libera</span>
+            </button>
+            <button className="fab-option fab-option-singolo" onClick={() => { setModalType('singolo'); setShowModal(true) }}>
+              <span className="fab-option-icon">🚗</span>
+              <span className="fab-option-label">Sto uscendo</span>
+            </button>
+          </div>
+        )}
+        <button
+          className={`fab-main ${fabOpen ? 'fab-open' : ''}`}
+          onClick={() => setFabOpen(!fabOpen)}
+          aria-label="Segnala parcheggio"
+        >
+          {fabOpen ? '✕' : '+'}
         </button>
       </div>
 
@@ -215,7 +235,7 @@ export default function Mappa() {
         <SignalModal
           tipo={modalType}
           onConfirm={handleSignal}
-          onClose={() => setShowModal(false)}
+          onClose={() => { setShowModal(false); setFabOpen(false) }}
         />
       )}
     </div>
