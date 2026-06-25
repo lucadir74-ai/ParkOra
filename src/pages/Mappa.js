@@ -181,16 +181,34 @@ export default function Mappa() {
             icon={createPinIcon(getPinColor(s.created_at), s.tipo)}
           >
             <Popup>
-              <div style={{ minWidth: 140 }}>
-                <p style={{ fontWeight: 600, margin: '0 0 4px' }}>
+              <div style={{ minWidth: 160 }}>
+                <p style={{ fontWeight: 600, margin: '0 0 4px', fontSize: 14 }}>
                   {s.tipo === 'zona' ? '📍 Zona libera' : '🚗 Posto singolo'}
                 </p>
                 <p style={{ fontSize: 12, color: '#888', margin: '0 0 2px' }}>
                   Segnalato {getMinutesAgo(s.created_at)}
                 </p>
-                <p style={{ fontSize: 12, color: '#e74c3c', margin: 0 }}>
+                <p style={{ fontSize: 12, color: '#e74c3c', margin: '0 0 10px' }}>
                   Scade tra {getExpireIn(s.created_at)}
                 </p>
+                <a
+                  href={`https://www.google.com/maps/dir/?api=1&destination=${s.latitudine},${s.longitudine}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'block',
+                    background: '#2ecc71',
+                    color: '#fff',
+                    textAlign: 'center',
+                    padding: '8px 12px',
+                    borderRadius: 8,
+                    fontWeight: 700,
+                    fontSize: 13,
+                    textDecoration: 'none',
+                  }}
+                >
+                  🧭 Naviga qui
+                </a>
               </div>
             </Popup>
           </Marker>
