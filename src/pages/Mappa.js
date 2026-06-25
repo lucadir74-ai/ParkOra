@@ -53,8 +53,20 @@ function createUserIcon() {
 function LocationUpdater({ onLocation }) {
   const map = useMap()
   useEffect(() => {
-    map.locate({ setView: true, maxZoom: 16 })
-    map.on('locationfound', e => onLocation(e.latlng))
+    if (!navigator.geolocation) return
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        const { latitude, longitude } = pos.coords
+        map.setView([latitude, longitude], 16)
+        onLocation({ lat: latitude, lng: longitude })
+      },
+      err => {
+        console.warn('Geolocation error:', err)
+        map.locate({ setView: true, maxZoom: 16 })
+        map.on('locationfound', e => onLocation(e.latlng))
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    )
   }, [map, onLocation])
   return null
 }
