@@ -1,26 +1,72 @@
 import { useEffect, useState, useCallback, useRef } from 'react'
-import Map, { Marker, NavigationControl } from 'react-map-gl'
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet'
+import L from 'leaflet'
 import { supabase } from '../supabaseClient'
 import { useAuth } from '../AuthContext'
 import { getPinColor, isExpired, PIN_EXPIRY_MINUTES } from '../constants'
 import SignalModal from '../components/SignalModal'
-import PinPopup from '../components/PinPopup'
 import TopBar from '../components/TopBar'
-import 'mapbox-gl/dist/mapbox-gl.css'
+import 'leaflet/dist/leaflet.css'
 import './Mappa.css'
 
-const MAPBOX_TOKEN = process.env.REACT_APP_MAPBOX_TOKEN
+// Fix icone Leaflet
+delete L.Icon.Default.prototype._getIconUrl
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+})
 
-const APPIO_TUSCOLANO = { latitude: 41.8719, longitude: 12.5239, zoom: 15 }
+function createPinIcon(color, tipo) {
+  const emoji = tipo === 'zona' ? '📍' : '🚗'
+  return L.divIcon({
+    className: '',
+    html: `<div style="
+      background:${color};
+      width:32px;height:32px;
+      border-radius:${tipo === 'zona' ? '8px' : '50% 50% 50% 0'};
+      transform:${tipo === 'zona' ? 'none' : 'rotate(-45deg)'};
+      display:flex;align-items:center;justify-content:center;
+      box-shadow:0 2px 6px rgba(0,0,0,0.25);
+      font-size:14px;
+    "><span style="transform:${tipo === 'zona' ? 'none' : 'rotate(45deg)'};">${emoji}</span></div>`,
+    iconSize: [32, 32],
+    iconAnchor: [16, 32],
+  })
+}
+
+function createUserIcon() {
+  return L.divIcon({
+    className: '',
+    html: `<div style="
+      width:16px;height:16px;
+      border-radius:50%;
+      background:#1a1a2e;
+      border:3px solid #fff;
+      box-shadow:0 0 0 2px #1a1a2e;
+    "></div>`,
+    iconSize: [16, 16],
+    iconAnchor: [8, 8],
+  })
+}
+
+function LocationUpdater({ onLocation }) {
+  const map = useMap()
+  useEffect(() => {
+    map.locate({ setView: true, maxZoom: 16 })
+    map.on('locationfound', e => onLocation(e.latlng))
+  }, [map, onLocation])
+  return null
+}
+
+const APPIO_CENTER = [41.8719, 12.5239]
 
 export default function Mappa() {
   const { user } = useAuth()
   const [segnalazioni, setSegnalazioni] = useState([])
-  const [selectedPin, setSelectedPin] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const [modalType, setModalType] = useState('singolo')
   const [userPosition, setUserPosition] = useState(null)
-  const [viewState, setViewState] = useState(APPIO_TUSCOLANO)
   const intervalRef = useRef(null)
 
   const fetchSegnalazioni = useCallback(async () => {
@@ -33,13 +79,9 @@ export default function Mappa() {
     if (!error && data) {
       const attive = data.filter(s => !isExpired(s.created_at))
       setSegnalazioni(attive)
-
       const scadute = data.filter(s => isExpired(s.created_at))
       if (scadute.length > 0) {
-        await supabase
-          .from('segnalazioni')
-          .update({ attiva: false })
-          .in('id', scadute.map(s => s.id))
+        await supabase.from('segnalazioni').update({ attiva: false }).in('id', scadute.map(s => s.id))
       }
     }
   }, [])
@@ -60,23 +102,9 @@ export default function Mappa() {
     }
   }, [fetchSegnalazioni])
 
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        pos => {
-          const { latitude, longitude } = pos.coords
-          setUserPosition({ latitude, longitude })
-          setViewState(v => ({ ...v, latitude, longitude }))
-        },
-        () => {}
-      )
-    }
+  const handleLocation = useCallback((latlng) => {
+    setUserPosition({ latitude: latlng.lat, longitude: latlng.lng })
   }, [])
-
-  function openModal(type) {
-    setModalType(type)
-    setShowModal(true)
-  }
 
   async function handleSignal(tipo) {
     if (!userPosition) {
@@ -101,8 +129,7 @@ export default function Mappa() {
 
   function getMinutesAgo(createdAt) {
     const mins = Math.floor((Date.now() - new Date(createdAt).getTime()) / 60000)
-    if (mins === 0) return 'adesso'
-    return `${mins} min fa`
+    return mins === 0 ? 'adesso' : `${mins} min fa`
   }
 
   function getExpireIn(createdAt) {
@@ -115,47 +142,47 @@ export default function Mappa() {
     <div className="mappa-container">
       <TopBar />
 
-      <Map
-        {...viewState}
-        onMove={e => setViewState(e.viewState)}
-        mapStyle="mapbox://styles/mapbox/streets-v12"
-        mapboxAccessToken={MAPBOX_TOKEN}
+      <MapContainer
+        center={APPIO_CENTER}
+        zoom={15}
         style={{ width: '100%', height: '100%' }}
+        zoomControl={false}
       >
-        <NavigationControl position="top-right" />
+        <TileLayer
+          attribution='© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        <LocationUpdater onLocation={handleLocation} />
 
         {userPosition && (
-          <Marker latitude={userPosition.latitude} longitude={userPosition.longitude}>
-            <div className="user-marker" />
-          </Marker>
+          <Marker
+            position={[userPosition.latitude, userPosition.longitude]}
+            icon={createUserIcon()}
+          />
         )}
 
         {segnalazioni.map(s => (
           <Marker
             key={s.id}
-            latitude={s.latitudine}
-            longitude={s.longitudine}
-            onClick={e => { e.originalEvent.stopPropagation(); setSelectedPin(s) }}
+            position={[s.latitudine, s.longitudine]}
+            icon={createPinIcon(getPinColor(s.created_at), s.tipo)}
           >
-            <div
-              className={`map-pin ${s.tipo === 'zona' ? 'pin-zona' : 'pin-singolo'}`}
-              style={{ background: getPinColor(s.created_at) }}
-            >
-              {s.tipo === 'zona' ? '📍' : '🚗'}
-            </div>
+            <Popup>
+              <div style={{ minWidth: 140 }}>
+                <p style={{ fontWeight: 600, margin: '0 0 4px' }}>
+                  {s.tipo === 'zona' ? '📍 Zona libera' : '🚗 Posto singolo'}
+                </p>
+                <p style={{ fontSize: 12, color: '#888', margin: '0 0 2px' }}>
+                  Segnalato {getMinutesAgo(s.created_at)}
+                </p>
+                <p style={{ fontSize: 12, color: '#e74c3c', margin: 0 }}>
+                  Scade tra {getExpireIn(s.created_at)}
+                </p>
+              </div>
+            </Popup>
           </Marker>
         ))}
-
-        {selectedPin && (
-          <PinPopup
-            pin={selectedPin}
-            minutesAgo={getMinutesAgo(selectedPin.created_at)}
-            expireIn={getExpireIn(selectedPin.created_at)}
-            color={getPinColor(selectedPin.created_at)}
-            onClose={() => setSelectedPin(null)}
-          />
-        )}
-      </Map>
+      </MapContainer>
 
       <div className="mappa-legend">
         <span className="legend-item"><span className="legend-dot" style={{ background: '#2ecc71' }} />libero ora</span>
@@ -164,10 +191,10 @@ export default function Mappa() {
       </div>
 
       <div className="mappa-actions">
-        <button className="btn-signal" onClick={() => openModal('singolo')}>
+        <button className="btn-signal" onClick={() => { setModalType('singolo'); setShowModal(true) }}>
           🚗 Sto uscendo
         </button>
-        <button className="btn-zone" onClick={() => openModal('zona')}>
+        <button className="btn-zone" onClick={() => { setModalType('zona'); setShowModal(true) }}>
           📍 Segnala zona libera
         </button>
       </div>
