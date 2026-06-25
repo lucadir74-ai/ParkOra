@@ -1,52 +1,18 @@
 .mappa-container {
-  position: relative;
-  width: 100vw;
-  height: 100vh;
+  position: fixed;
+  inset: 0;
   display: flex;
   flex-direction: column;
 }
 
-.user-marker {
-  width: 16px;
-  height: 16px;
-  border-radius: 50%;
-  background: #1a1a2e;
-  border: 3px solid #fff;
-  box-shadow: 0 0 0 2px #1a1a2e;
-}
-
-.map-pin {
-  width: 32px;
-  height: 32px;
-  border-radius: 50% 50% 50% 0;
-  transform: rotate(-45deg);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: transform 0.15s;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.25);
-}
-
-.map-pin:hover {
-  transform: rotate(-45deg) scale(1.15);
-}
-
-.map-pin span, .map-pin {
-  font-size: 14px;
-}
-
-.pin-zona {
-  border-radius: 8px;
-  transform: none;
-}
-
-.pin-zona:hover {
-  transform: scale(1.1);
+.leaflet-container {
+  flex: 1;
+  width: 100%;
+  z-index: 1;
 }
 
 .mappa-legend {
-  position: absolute;
+  position: fixed;
   bottom: 130px;
   left: 50%;
   transform: translateX(-50%);
@@ -56,7 +22,7 @@
   display: flex;
   gap: 12px;
   box-shadow: 0 2px 8px rgba(0,0,0,0.12);
-  z-index: 10;
+  z-index: 1000;
 }
 
 .legend-item {
@@ -76,7 +42,7 @@
 }
 
 .mappa-actions {
-  position: absolute;
+  position: fixed;
   bottom: 24px;
   left: 0;
   right: 0;
@@ -84,7 +50,7 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
-  z-index: 10;
+  z-index: 1000;
 }
 
 .btn-signal {
@@ -120,3 +86,12 @@
 }
 
 .btn-zone:active { background: #fef9e7; }
+
+.user-marker {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #1a1a2e;
+  border: 3px solid #fff;
+  box-shadow: 0 0 0 2px #1a1a2e;
+}
